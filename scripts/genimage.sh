@@ -65,7 +65,7 @@ ROOTFS_VOLUME=${ROOTFS_VOLUME/\/dev/\/host-dev}
 
 # Create rootfs filesystem
 echo "Creating rootfs filesystem"
-mkfs.ext4 -O ^metadata_csum -O ^64bit ${ROOTFS_VOLUME}
+mkfs.ext4 -O ^metadata_csum -O ^64bit -O ^orphan_file ${ROOTFS_VOLUME}
 
 # mount the image
 echo "Mounting root image"
