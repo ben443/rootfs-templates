@@ -15,7 +15,7 @@ if [ "$DEBIAN_SUITE" = "kali-rolling" ]; then
 fi
 
 # Set the proper suite in our sources.list
-sed -i "s/@@SUITE@@/${SUITE}/" /etc/apt/sources.list.d/mobian.list
+sed -i "s/@@SUITE@@/${SUITE}/" /etc/apt/sources.list.d/droidian.list
 
 # Setup repo priorities so only u-boot-menu will be installed from mobian
 cat > /etc/apt/preferences.d/00-kali-priority << EOF
