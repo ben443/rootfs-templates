@@ -1,4 +1,4 @@
-{{- $architecture := or .architecture "arm64" -}}
+p{{- $architecture := or .architecture "arm64" -}}
 {{- $username := or .username "kali" -}}
 {{- $password := or .password "1234" -}}
 {{- $hostname := or .hostname "kali" -}}
@@ -31,7 +31,7 @@ actions:
     ## check-gpg: false
 
   - action: overlay
-    description: Enable Mobian repository
+    description: Enable Droidian repository
     source: overlays/apt/
     destination: /etc/apt/
 
@@ -57,10 +57,15 @@ actions:
     source: overlays/skel/
     destination: /etc/skel/
 
-  - action: run
-    description: Setup Mobian repository
+- action: run
+    description: Setup repository
     chroot: true
     script: scripts/setup-apt.sh {{ $debian_suite }} {{ $suite }} {{ $contrib }} {{ $nonfree }}
+
+- action: run
+    description: Setup Droidian repository
+    chroot: true
+    script: scripts/setup-droidian-apt.sh {{ $suite }} {{ $contrib }} {{ $nonfree }}
 
   - action: recipe
     recipe: include/packages-base.yaml
