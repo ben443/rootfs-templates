@@ -1,0 +1,87 @@
+{{- $architecture := or .architecture "arm64" -}}
+{{- $suite := "trixie" -}}
+{{- $use_internal_repository := or .use_internal_repository "no" -}}
+{{- $debian_suite := or .debian_suite "kali-rolling" -}}
+{{- $rootfs := or .rootfs "rootfs.img" }}
+{{- $username := or .username "kali" -}}
+{{- $password := or .password "kali" -}}
+{{- $hostname := or .hostname "kali" -}}
+
+architecture: {{ $architecture }}
+actions:
+
+  - action: recipe
+    description: Generate base rootfs
+    recipe: recipes/kali_base.yaml
+    variables:
+      architecture: {{ $architecture }}
+      suite: {{ $suite }}
+      use_internal_repository: {{ $use_internal_repository }}
+
+  - action: run
+    chroot: true
+    description: Add kali repo
+    command: echo "deb [trusted=yes] http://http.kali.org/kali kali-rolling main contrib non-free non-free-firmware" > /etc/apt/sources.list
+
+  - action: apt
+    chroot: true
+    description: install packages
+    packages:
+      - libhybris
+      - libhybris-test
+      - nano
+      - strace
+      - sudo
+      - adduser
+      - locales
+      - desktop-base
+      - evtest
+      - kali-linux-core
+      - kali-themes-mobile
+      - openssh-server
+      - eog
+      - epiphany-browser
+      - endeavour
+      - evince
+      - firefox-esr
+      # Temporary hack until geary returns to testing
+      # - geary
+      - gnome-calculator
+      - gnome-calendar
+      - gnome-console
+      - gnome-maps
+      - gnome-software
+      - gnome-software-plugin-flatpak
+      - gnome-sound-recorder
+      - gnome-text-editor
+      - gnome-usage
+      - gnome-weather
+      - lollypop
+      - phog
+      - phosh-mobile-settings
+      - phosh-plugins
+      - phosh-tour
+      - portfolio-filemanager
+      - powersupply-gtk
+
+  - action: run
+    description: Set up default user
+    chroot: true
+    script: scripts/setup-user.sh {{ $username }} {{ $password }}
+
+  - action: run
+    description: Set up system
+    chroot: true
+    script: scripts/setup-system.sh {{ $hostname }}
+
+{{ if eq $architecture "armhf" }}
+  - action: run
+    chroot: true
+    description: add arm64 arch
+    command: dpkg --add-architecture arm64
+
+  - action: run
+    chroot: true
+    description: update repositories
+    command: apt update
+{{end}}
