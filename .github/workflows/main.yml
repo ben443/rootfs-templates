@@ -1,0 +1,32 @@
+name: Build Droidian Image
+
+on:
+  workflow_dispatch: # Manual trigger for the workflow
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Step 2: Install debos
+      - name: Install debos
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y debos
+
+      # Step 3: Build Droidian image
+      - name: Build Droidian Image
+        run: |
+          debos droidia-plamo-wf.yaml
+
+      # Step 4: Upload output for download
+      - name: Upload Output
+        uses: actions/upload-artifact@v3
+        with:
+          name: droidian-image
+          path: |
+            *.img # Adjust this path if the output is different
