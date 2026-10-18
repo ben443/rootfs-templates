@@ -1,0 +1,76 @@
+{{- $image := or .image "kali-droidian-arm64-rootfs.tar.gz" -}}
+{{- $suite := or .suite "kali-rolling" -}}
+{{- $mirror := or .mirror "http://http.kali.org/kali/" -}}
+
+architecture: arm64
+
+actions:
+  - action: run
+    description: Create build output directory
+    chroot: false
+    command: mkdir -p {{ .gopath }}/rootfs
+
+  - action: run
+    description: Bootstrap Kali-Droidian base with multistrap
+    chroot: false
+    script: scripts/bootstrap-multistrap.sh
+    environment:
+      ROOTFS: {{ .gopath }}/rootfs
+      SUITE: {{ $suite }}
+      MIRROR: {{ $mirror }}
+      ARCH: arm64
+
+  - action: run
+    description: Configure Kali repositories, keyring and APT
+    chroot: true
+    script: scripts/01-configure-kali.sh
+
+  - action: apt
+    description: Install essential base packages
+    packages:
+      - apt
+      - apt-utils
+      - ca-certificates
+      - curl
+      - wget
+      - gnupg
+      - kali-archive-keyring
+      - systemd
+      - systemd-sysv
+      - dbus
+      - udev
+      - sudo
+      - adduser
+      - locales
+      - tzdata
+      - nano
+      - vim-tiny
+      - less
+      - procps
+      - iproute2
+      - iputils-ping
+      - net-tools
+      - openssh-client
+      - openssh-server
+      - rsync
+      - unzip
+      - zip
+      - git
+      - python3
+      - python3-pip
+
+  - action: run
+    description: Install Kali mobile, desktop and penetration-testing package set
+    chroot: true
+    script: scripts/02-install-packages.sh
+
+  - action: run
+    description: Configure users, services and Droidian-friendly mobile defaults
+    chroot: true
+    script: scripts/03-mobile-cleanup.sh
+
+  - action: pack
+    description: Create distributable ARM64 rootfs tarball
+    file: {{ $image }}
+    rootfs: {{ .gopath }}/rootfs
+    compression: gz
